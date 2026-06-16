@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ group['name'] }} - SmartSplit AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="/" class="back-btn">← Back</a>
+        <h1>{{ group['name'] }}</h1>
+        <p>👥 {{ group['members'] }}</p>
+    </div>
+
+    <div class="card">
+        <h2>Add Expense</h2>
+        <form action="/add-expense/{{ group['id'] }}" method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" name="description" placeholder="e.g. Hotel booking" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount (Rs.)</label>
+                    <input type="number" name="amount" placeholder="e.g. 2400" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Paid By</label>
+                    <input type="text" name="paid_by" placeholder="e.g. Raj" required>
+                </div>
+            </div>
+            <button type="submit" class="btn">Add Expense ✨ AI will auto-categorize</button>
+        </form>
+    </div>
+
+    {% if expenses %}
+    <div class="card">
+        <h2>Expenses</h2>
+        <table class="expense-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Paid By</th>
+                    <th>AI Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense['description'] }}</td>
+                    <td>Rs. {{ "%.2f"|format(expense['amount']) }}</td>
+                    <td>{{ expense['paid_by'] }}</td>
+                    <td><span class="badge">{{ expense['category'] }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if settlements %}
+    <div class="card">
+        <h2>💰 Who Pays Whom</h2>
+        <div class="settlements">
+            {% for s in settlements %}
+            <div class="settlement-item">
+                <span class="debtor">{{ s['from'] }}</span>
+                <span class="arrow"> owes </span>
+                <span class="creditor">{{ s['to'] }}</span>
+                <span class="amount"> Rs. {{ s['amount'] }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% set total_amount = expenses|sum(attribute='amount') %}
+    <div class="card">
+        <h2>Spending by Category</h2>
+        <div class="category-breakdown">
+            {% for category, total in category_totals.items() %}
+            <div class="category-item">
+                <span class="category-name">{{ category }}</span>
+                <div class="category-bar-wrap">
+                    <div class="category-bar" style="width: {{ ((total / total_amount) * 100)|round|int }}%"></div>
+                </div>
+                <span class="category-amount">Rs. {{ "%.2f"|format(total) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="/insights/{{ group['id'] }}" class="btn btn-secondary" style="margin-top:16px">🤖 Get AI Insights</a>
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

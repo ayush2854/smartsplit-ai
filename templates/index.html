@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSplit AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>💸 SmartSplit AI</h1>
+        <p>Smart expense splitting powered by AI</p>
+    </div>
+
+    <div class="card">
+        <h2>Create New Group</h2>
+        <form action="/create-group" method="POST">
+            <div class="form-group">
+                <label>Group / Trip Name</label>
+                <input type="text" name="name" placeholder="e.g. Goa Trip 2025" required>
+            </div>
+            <div class="form-group">
+                <label>Members (comma separated)</label>
+                <input type="text" name="members" placeholder="e.g. Raj, Priya, Arun, Meera" required>
+            </div>
+            <button type="submit" class="btn">Create Group</button>
+        </form>
+    </div>
+
+    {% if groups %}
+    <div class="card">
+        <h2>Your Groups</h2>
+        <div class="group-list">
+            {% for group in groups %}
+            <a href="/group/{{ group['id'] }}" class="group-item">
+                <div class="group-name">{{ group['name'] }}</div>
+                <div class="group-members">👥 {{ group['members'] }}</div>
+                <div class="group-arrow">→</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

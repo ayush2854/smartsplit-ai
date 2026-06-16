@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Insights - {{ group['name'] }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="/group/{{ group['id'] }}" class="back-btn">← Back to Group</a>
+        <h1>🤖 AI Insights</h1>
+        <p>{{ group['name'] }}</p>
+    </div>
+
+    <div class="card insight-card">
+        <h2>What the AI sees</h2>
+        <div class="insight-text">{{ insight }}</div>
+    </div>
+</div>
+
+</body>
+</html>
