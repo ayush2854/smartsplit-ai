@@ -81,4 +81,7 @@ def insights(group_id):
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True)
+    app.run(debug=False)
+
+# This runs init_db when gunicorn starts the app too
+init_db()
