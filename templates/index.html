@@ -8,11 +8,20 @@
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>💸 SmartSplit AI</h1>
-        <p>Smart expense splitting powered by AI</p>
+<nav class="navbar">
+    <div class="nav-brand">💸 SmartSplit AI</div>
+    <div class="nav-right">
+        <span class="nav-user">👤 {{ current_user.name }}</span>
+        <a href="/logout" class="nav-logout">Logout</a>
     </div>
+</nav>
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
 
     <div class="card">
         <h2>Create New Group</h2>
@@ -41,6 +50,11 @@
             </a>
             {% endfor %}
         </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🗂️</div>
+        <p>No groups yet. Create your first trip above!</p>
     </div>
     {% endif %}
 </div>
