@@ -20,7 +20,7 @@ def categorize_expense(description, amount):
         """
         time.sleep(1)  # Small delay to respect rate limits
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-3.5-flash-lite",
             contents=prompt
         )
         return response.text.strip()
@@ -59,7 +59,7 @@ def get_spending_insights(expenses, group_name):
     """
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-3.5-flash-lite",
             contents=prompt
         )
         return response.text.strip()
@@ -119,3 +119,94 @@ def calculate_settlements(expenses, members):
             creditors[creditor] -= amount
 
     return settlements
+
+import base64
+from PIL import Image
+import io
+
+def analyze_receipt(image_file):
+    try:
+        # Read image bytes directly
+        image_bytes = image_file.read()
+        
+        # Open with Pillow for processing
+        img = Image.open(io.BytesIO(image_bytes))
+        
+        # Convert to RGB
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        # Resize if too large
+        max_size = (1024, 1024)
+        img.thumbnail(max_size, Image.LANCZOS)
+        
+        # Save to buffer
+        buffer = io.BytesIO()
+        img.save(buffer, format='JPEG', quality=85)
+        buffer.seek(0)
+        image_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+        prompt = """
+        Look at this image. It may be a receipt, bill, invoice, or photo of any purchase.
+        
+        Extract these details and respond in EXACTLY this format with no extra text:
+        DESCRIPTION: [merchant name or what was purchased]
+        AMOUNT: [final total as number only, no symbols]
+        CATEGORY: [one of: Food, Transport, Accommodation, Entertainment, Shopping, Medical, Utilities, Other]
+        
+        If no receipt is visible, use your best guess from what you can see.
+        """
+
+        response = client.models.generate_content(
+            model="gemini-3.5-flash-lite",
+            contents=[
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "inline_data": {
+                                "mime_type": "image/jpeg",
+                                "data": image_data
+                            }
+                        },
+                        {
+                            "text": prompt
+                        }
+                    ]
+                }
+            ]
+        )
+
+        text = response.text.strip()
+        print("Gemini receipt response:", text)  # Debug log
+
+        result = {
+            'description': 'Unknown',
+            'amount': 0,
+            'category': 'Other'
+        }
+
+        for line in text.split('\n'):
+            line = line.strip()
+            if line.startswith('DESCRIPTION:'):
+                result['description'] = line.replace('DESCRIPTION:', '').strip()
+            elif line.startswith('AMOUNT:'):
+                try:
+                    amount_str = line.replace('AMOUNT:', '').strip()
+                    amount_str = ''.join(c for c in amount_str if c.isdigit() or c == '.')
+                    result['amount'] = float(amount_str) if amount_str else 0
+                except:
+                    result['amount'] = 0
+            elif line.startswith('CATEGORY:'):
+                result['category'] = line.replace('CATEGORY:', '').strip()
+
+        return result
+
+    except Exception as e:
+        print("Receipt scan error:", str(e))  # Debug log
+        return {
+            'description': 'Could not read receipt',
+            'amount': 0,
+            'category': 'Other',
+            'error': str(e)
+        }

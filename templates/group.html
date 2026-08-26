@@ -17,21 +17,58 @@
 
     <div class="card">
         <h2>Add Expense</h2>
+
+        <!-- Receipt Scanner -->
+        <div class="scanner-section">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="margin-bottom:12px">{{ message }}</div>
+            {% endfor %}
+            {% endwith %}
+            <p class="scanner-label">📸 Scan a receipt — AI will extract details automatically</p>
+            <form action="/scan-receipt/{{ group['id'] }}" method="POST" enctype="multipart/form-data">
+                <div class="scanner-row">
+                    <input type="file" name="receipt" accept="image/*" class="file-input" id="receiptFile" onchange="showFileName(this)">
+                    <label for="receiptFile" class="file-label" id="fileLabel">📁 Choose Receipt Image</label>
+                    <button type="submit" class="btn btn-scan">🤖 Scan with AI</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="divider-text">— or enter manually —</div>
+
+        <!-- Manual Entry / Pre-filled from scan -->
         <form action="/add-expense/{{ group['id'] }}" method="POST">
             <div class="form-row">
                 <div class="form-group">
                     <label>Description</label>
-                    <input type="text" name="description" placeholder="e.g. Hotel booking" required>
+                    <input type="text" name="description"
+                        placeholder="e.g. Hotel booking"
+                        value="{{ scanned.description if scanned else '' }}"
+                        required>
                 </div>
                 <div class="form-group">
                     <label>Amount (Rs.)</label>
-                    <input type="number" name="amount" placeholder="e.g. 2400" step="0.01" required>
+                    <input type="number" name="amount" step="0.01"
+                        placeholder="e.g. 2400"
+                        value="{{ scanned.amount if scanned and scanned.amount > 0 else '' }}"
+                        required>
                 </div>
                 <div class="form-group">
                     <label>Paid By</label>
-                    <input type="text" name="paid_by" placeholder="e.g. Raj" required>
+                    <input type="text" name="paid_by"
+                        placeholder="e.g. Raj"
+                        required>
                 </div>
             </div>
+            {% if scanned %}
+            <div class="scan-result">
+                ✅ AI detected: <strong>{{ scanned.description }}</strong>
+                — Rs. {{ scanned.amount }}
+                — Category: <strong>{{ scanned.category }}</strong>
+                <br><small>Review and confirm below, then click Add Expense</small>
+            </div>
+            {% endif %}
             <button type="submit" class="btn">Add Expense ✨ AI will auto-categorize</button>
         </form>
     </div>
@@ -51,7 +88,7 @@
             </thead>
             <tbody>
                 {% for expense in expenses %}
-                    <tr>
+                <tr>
                     <td>{{ expense['description'] }}</td>
                     <td>Rs. {{ "%.2f"|format(expense['amount']) }}</td>
                     <td>{{ expense['paid_by'] }}</td>
@@ -94,7 +131,7 @@
             <div class="category-item">
                 <span class="category-name">{{ category }}</span>
                 <div class="category-bar-wrap">
-                    <div class="category-bar" style="width: {{ ((total / total_amount) * 100)|round|int }}%"></div>
+                    <div class="category-bar" style="width: {{ ((total / total_amount) * 100)|round|int if total_amount > 0 else 0 }}%"></div>
                 </div>
                 <span class="category-amount">Rs. {{ "%.2f"|format(total) }}</span>
             </div>
@@ -107,5 +144,21 @@
 
 </div>
 
+<script>
+function showFileName(input) {
+    const label = document.getElementById('fileLabel');
+    if (input.files && input.files[0]) {
+        label.textContent = '✅ ' + input.files[0].name;
+        label.style.background = '#f0fff4';
+        label.style.borderColor = '#48bb78';
+        label.style.color = '#276749';
+    } else {
+        label.textContent = '📁 Choose Receipt Image';
+        label.style.background = 'white';
+        label.style.borderColor = '#667eea';
+        label.style.color = '#667eea';
+    }
+}
+</script>
 </body>
 </html>

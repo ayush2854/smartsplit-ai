@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import init_db, get_connection
-from ai_helper import categorize_expense, get_spending_insights, calculate_settlements
+from ai_helper import categorize_expense, get_spending_insights, calculate_settlements, analyze_receipt
 import os
 
 app = Flask(__name__)
@@ -141,6 +141,7 @@ def group(group_id):
     ).fetchone()
 
     if not grp:
+        conn.close()
         flash('Group not found.', 'error')
         return redirect(url_for('index'))
 
@@ -152,11 +153,7 @@ def group(group_id):
 
     expenses_list = [dict(e) for e in expenses]
     settlements = calculate_settlements(expenses_list, grp['members'])
-
-    category_totals = {}
-    for e in expenses_list:
-        cat = e['category']
-        category_totals[cat] = category_totals.get(cat, 0) + e['amount']
+    category_totals = get_category_totals(group_id)
 
     return render_template('group.html',
         group=grp,
@@ -173,7 +170,9 @@ def add_expense(group_id):
         'SELECT * FROM groups WHERE id = ? AND user_id = ?',
         (group_id, current_user.id)
     ).fetchone()
+
     if not grp:
+        conn.close()
         return redirect(url_for('index'))
 
     description = request.form['description']
@@ -197,7 +196,9 @@ def insights(group_id):
         'SELECT * FROM groups WHERE id = ? AND user_id = ?',
         (group_id, current_user.id)
     ).fetchone()
+
     if not grp:
+        conn.close()
         return redirect(url_for('index'))
 
     expenses = conn.execute(
@@ -248,7 +249,6 @@ def edit_expense(expense_id):
     conn.close()
     return render_template('edit_expense.html', expense=expense)
 
-
 @app.route('/delete-expense/<int:expense_id>', methods=['POST'])
 @login_required
 def delete_expense(expense_id):
@@ -274,8 +274,66 @@ def delete_expense(expense_id):
     flash('Expense deleted.', 'success')
     return redirect(url_for('group', group_id=group_id))
 
+@app.route('/scan-receipt/<int:group_id>', methods=['POST'])
+@login_required
+def scan_receipt(group_id):
+    conn = get_connection()
+    grp = conn.execute(
+        'SELECT * FROM groups WHERE id = ? AND user_id = ?',
+        (group_id, current_user.id)
+    ).fetchone()
+
+    if not grp:
+        conn.close()
+        return redirect(url_for('index'))
+
+    if 'receipt' not in request.files or request.files['receipt'].filename == '':
+        conn.close()
+        flash('⚠️ Please select an image before clicking Scan.', 'error')
+        return redirect(url_for('group', group_id=group_id))
+
+    file = request.files['receipt']
+
+    # Check file type
+    allowed = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    extension = file.filename.rsplit('.', 1)[-1].lower()
+    if extension not in allowed:
+        conn.close()
+        flash('Please upload an image file (JPG, PNG, etc.)', 'error')
+        return redirect(url_for('group', group_id=group_id))
+
+    # Analyze with AI
+    result = analyze_receipt(file)
+
+    # Fetch remaining data for template render
+    expenses = conn.execute(
+        'SELECT * FROM expenses WHERE group_id = ? ORDER BY created_at DESC',
+        (group_id,)
+    ).fetchall()
+    expenses_list = [dict(e) for e in expenses]
+    
+    conn.close()
+
+    # Send extracted data back to the group page for confirmation
+    return render_template('group.html',
+        group=grp,
+        expenses=expenses_list,
+        settlements=calculate_settlements(expenses_list, grp['members']),
+        category_totals=get_category_totals(group_id),
+        scanned=result
+    )
+
+def get_category_totals(group_id):
+    conn = get_connection()
+    expenses = conn.execute(
+        'SELECT * FROM expenses WHERE group_id = ?', (group_id,)
+    ).fetchall()
+    conn.close()
+    totals = {}
+    for e in expenses:
+        totals[e['category']] = totals.get(e['category'], 0) + e['amount']
+    return totals
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
-
-init_db()
