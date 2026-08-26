@@ -345,3 +345,32 @@ body {
 }
 
 .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+/* Action buttons */
+.action-btn {
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 4px;
+    transition: background 0.2s;
+}
+
+.edit-btn { background: #ebf8ff; color: #2b6cb0; }
+.edit-btn:hover { background: #bee3f8; }
+.delete-btn { background: #fff5f5; color: #c53030; }
+.delete-btn:hover { background: #fed7d7; }
+
+/* AI note */
+.ai-note {
+    background: #f0fff4;
+    border: 1px solid #c6f6d5;
+    color: #276749;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Expense — SmartSplit AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">💸 SmartSplit AI</div>
+    <div class="nav-right">
+        <span class="nav-user">👤 {{ current_user.name }}</span>
+        <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <a href="javascript:history.back()" class="back-btn">← Back</a>
+        <h2 style="margin-top:12px">Edit Expense</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="description"
+                    value="{{ expense['description'] }}" required>
+            </div>
+            <div class="form-group">
+                <label>Amount (Rs.)</label>
+                <input type="number" name="amount" step="0.01"
+                    value="{{ expense['amount'] }}" required>
+            </div>
+            <div class="form-group">
+                <label>Paid By</label>
+                <input type="text" name="paid_by"
+                    value="{{ expense['paid_by'] }}" required>
+            </div>
+            <div class="ai-note">
+                ✨ AI will automatically re-categorize this expense when you save
+            </div>
+            <button type="submit" class="btn">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

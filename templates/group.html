@@ -46,15 +46,24 @@
                     <th>Amount</th>
                     <th>Paid By</th>
                     <th>AI Category</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for expense in expenses %}
-                <tr>
+                    <tr>
                     <td>{{ expense['description'] }}</td>
                     <td>Rs. {{ "%.2f"|format(expense['amount']) }}</td>
                     <td>{{ expense['paid_by'] }}</td>
                     <td><span class="badge">{{ expense['category'] }}</span></td>
+                    <td>
+                        <a href="/edit-expense/{{ expense['id'] }}" class="action-btn edit-btn">✏️</a>
+                        <form method="POST" action="/delete-expense/{{ expense['id'] }}"
+                            style="display:inline"
+                            onsubmit="return confirm('Delete this expense?')">
+                            <button type="submit" class="action-btn delete-btn">🗑️</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

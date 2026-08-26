@@ -209,6 +209,71 @@ def insights(group_id):
     ai_insight = get_spending_insights(expenses_list, grp['name'])
     return render_template('insights.html', group=grp, insight=ai_insight)
 
+@app.route('/edit-expense/<int:expense_id>', methods=['GET', 'POST'])
+@login_required
+def edit_expense(expense_id):
+    conn = get_connection()
+
+    # Get expense and verify it belongs to current user's group
+    expense = conn.execute('''
+        SELECT e.* FROM expenses e
+        JOIN groups g ON e.group_id = g.id
+        WHERE e.id = ? AND g.user_id = ?
+    ''', (expense_id, current_user.id)).fetchone()
+
+    if not expense:
+        conn.close()
+        flash('Expense not found.', 'error')
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        description = request.form['description']
+        amount = float(request.form['amount'])
+        paid_by = request.form['paid_by']
+
+        # Re-categorize with AI since description may have changed
+        category = categorize_expense(description, amount)
+
+        conn.execute('''
+            UPDATE expenses
+            SET description = ?, amount = ?, paid_by = ?, category = ?
+            WHERE id = ?
+        ''', (description, amount, paid_by, category, expense_id))
+        conn.commit()
+        conn.close()
+
+        flash('Expense updated successfully.', 'success')
+        return redirect(url_for('group', group_id=expense['group_id']))
+
+    conn.close()
+    return render_template('edit_expense.html', expense=expense)
+
+
+@app.route('/delete-expense/<int:expense_id>', methods=['POST'])
+@login_required
+def delete_expense(expense_id):
+    conn = get_connection()
+
+    # Verify expense belongs to current user's group
+    expense = conn.execute('''
+        SELECT e.* FROM expenses e
+        JOIN groups g ON e.group_id = g.id
+        WHERE e.id = ? AND g.user_id = ?
+    ''', (expense_id, current_user.id)).fetchone()
+
+    if not expense:
+        conn.close()
+        flash('Expense not found.', 'error')
+        return redirect(url_for('index'))
+
+    group_id = expense['group_id']
+    conn.execute('DELETE FROM expenses WHERE id = ?', (expense_id,))
+    conn.commit()
+    conn.close()
+
+    flash('Expense deleted.', 'success')
+    return redirect(url_for('group', group_id=group_id))
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
