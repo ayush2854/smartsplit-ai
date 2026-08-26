@@ -8,6 +8,9 @@ import os
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'smartsplit-secret-key-2025')
 
+# Call init_db() directly when the application starts
+init_db()
+
 # Flask-Login setup
 login_manager = LoginManager()
 login_manager.init_app(app)
