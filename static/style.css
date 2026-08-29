@@ -449,3 +449,18 @@ body {
     margin-bottom: 12px;
     line-height: 1.6;
 }
+
+.btn-pdf {
+    background: #e53e3e;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    padding: 11px 22px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-pdf:hover { background: #c53030; }

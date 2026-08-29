@@ -136,8 +136,9 @@
                 <span class="category-amount">Rs. {{ "%.2f"|format(total) }}</span>
             </div>
             {% endfor %}
-        </div>
-        <a href="/insights/{{ group['id'] }}" class="btn btn-secondary" style="margin-top:16px">🤖 Get AI Insights</a>
+        <div style="display:flex; gap:12px; margin-top:16px">
+            <a href="/insights/{{ group['id'] }}" class="btn btn-secondary" style="margin:0">🤖 Get AI Insights</a>
+            <a href="/export-pdf/{{ group['id'] }}" class="btn btn-pdf" style="margin:0">📄 Export PDF</a>
     </div>
 
     {% endif %}

@@ -3,6 +3,8 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import init_db, get_connection
 from ai_helper import categorize_expense, get_spending_insights, calculate_settlements, analyze_receipt
+from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
+from pdf_generator import generate_settlement_pdf
 import os
 
 app = Flask(__name__)
@@ -336,6 +338,39 @@ def get_category_totals(group_id):
     for e in expenses:
         totals[e['category']] = totals.get(e['category'], 0) + e['amount']
     return totals
+
+@app.route('/export-pdf/<int:group_id>')
+@login_required
+def export_pdf(group_id):
+    conn = get_connection()
+    grp = conn.execute(
+        'SELECT * FROM groups WHERE id = ? AND user_id = ?',
+        (group_id, current_user.id)
+    ).fetchone()
+
+    if not grp:
+        flash('Group not found.', 'error')
+        return redirect(url_for('index'))
+
+    expenses = conn.execute(
+        'SELECT * FROM expenses WHERE group_id = ? ORDER BY created_at ASC',
+        (group_id,)
+    ).fetchall()
+    conn.close()
+
+    expenses_list = [dict(e) for e in expenses]
+    settlements = calculate_settlements(expenses_list, grp['members'])
+    category_totals = get_category_totals(group_id)
+
+    pdf_buffer = generate_settlement_pdf(
+        dict(grp), expenses_list, settlements, category_totals
+    )
+
+    response = make_response(pdf_buffer.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = \
+        f'attachment; filename="{grp["name"]}_settlement.pdf"'
+    return response
 
 if __name__ == '__main__':
     init_db()
