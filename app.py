@@ -378,6 +378,10 @@ def export_pdf(group_id):
         f'attachment; filename="{grp["name"]}_settlement.pdf"'
     return response
 
+@app.route('/api/docs')
+def api_docs():
+    return render_template('api_docs.html')
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)

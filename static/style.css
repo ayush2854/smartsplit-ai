@@ -464,3 +464,15 @@ body {
 }
 
 .btn-pdf:hover { background: #c53030; }
+
+.nav-api-link {
+    font-size: 0.85rem;
+    color: #1A7A8A;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 6px 14px;
+    border: 1px solid #1A7A8A;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.nav-api-link:hover { background: #f0fafa; }

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation — SmartSplit AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { background: #0f1117; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+        .docs-container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .docs-header { text-align: center; margin-bottom: 48px; }
+        .docs-header h1 { font-size: 2.2rem; color: #1A7A8A; font-weight: 700; margin-bottom: 8px; }
+        .docs-header p { color: #718096; font-size: 1rem; }
+        .base-url { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px;
+            padding: 14px 20px; font-family: monospace; color: #48bb78;
+            margin-bottom: 40px; font-size: 0.95rem; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: #1A7A8A;
+            text-transform: uppercase; letter-spacing: 1px; margin: 40px 0 16px;
+            padding-bottom: 8px; border-bottom: 2px solid #1A7A8A; }
+        .endpoint { background: #1a1d27; border: 1px solid #2d3748;
+            border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+        .endpoint-header { display: flex; align-items: center; gap: 14px;
+            padding: 16px 20px; cursor: pointer; transition: background 0.2s; }
+        .endpoint-header:hover { background: #20243a; }
+        .method { padding: 4px 12px; border-radius: 6px; font-size: 0.8rem;
+            font-weight: 700; font-family: monospace; min-width: 60px; text-align: center; }
+        .get { background: #1a4731; color: #48bb78; }
+        .post { background: #1a2a4a; color: #63b3ed; }
+        .put { background: #3d2a00; color: #f6ad55; }
+        .delete { background: #3d1a1a; color: #fc8181; }
+        .endpoint-path { font-family: monospace; font-size: 0.95rem; color: #e2e8f0; flex: 1; }
+        .endpoint-desc { font-size: 0.85rem; color: #718096; }
+        .endpoint-body { padding: 0 20px 20px; border-top: 1px solid #2d3748; display: none; }
+        .endpoint-body.open { display: block; }
+        .auth-badge { background: #3d2a00; color: #f6ad55; font-size: 0.75rem;
+            padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+        .code-block { background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+            padding: 16px; margin: 12px 0; font-family: monospace; font-size: 0.85rem;
+            overflow-x: auto; white-space: pre; line-height: 1.6; }
+        .code-label { font-size: 0.75rem; color: #718096; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-top: 16px; margin-bottom: 4px; }
+        .key { color: #79c0ff; }
+        .string { color: #a5d6ff; }
+        .number { color: #f2cc60; }
+        .boolean { color: #ff7b72; }
+        .toggle-icon { color: #718096; font-size: 0.8rem; transition: transform 0.2s; }
+        .toggle-icon.open { transform: rotate(180deg); }
+        .try-btn { background: #1A7A8A; color: white; border: none; padding: 6px 14px;
+            border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 12px; }
+        .try-btn:hover { background: #156575; }
+        .response-area { background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+            padding: 16px; margin-top: 8px; font-family: monospace; font-size: 0.82rem;
+            min-height: 60px; color: #48bb78; white-space: pre-wrap; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="docs-container">
+    <div class="docs-header">
+        <h1>💸 SmartSplit AI</h1>
+        <p>REST API Documentation — v1.0</p>
+        <p style="margin-top:8px; color:#4a5568; font-size:0.9rem">
+            All endpoints return JSON. Protected endpoints require a Bearer token in the Authorization header.
+        </p>
+    </div>
+
+    <div class="base-url">
+        🌐 Base URL: <span style="color:#e2e8f0">https://smartsplit-ai.onrender.com</span>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        Authentication: <span style="color:#f6ad55">Bearer Token (JWT)</span>
+    </div>
+
+    <!-- AUTH -->
+    <div class="section-title">Authentication</div>
+
+    <!-- Register -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/auth/register</span>
+            <span class="endpoint-desc">Create a new account</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Request Body</div>
+            <div class="code-block">{
+  <span class="key">"name"</span>: <span class="string">"Ayush Chavan"</span>,
+  <span class="key">"email"</span>: <span class="string">"ayush@example.com"</span>,
+  <span class="key">"password"</span>: <span class="string">"yourpassword"</span>
+}</div>
+            <div class="code-label">Response (201)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"token"</span>: <span class="string">"eyJhbGci..."</span>,
+  <span class="key">"user"</span>: {
+    <span class="key">"id"</span>: <span class="number">1</span>,
+    <span class="key">"name"</span>: <span class="string">"Ayush Chavan"</span>,
+    <span class="key">"email"</span>: <span class="string">"ayush@example.com"</span>
+  }
+}</div>
+        </div>
+    </div>
+
+    <!-- Login -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/auth/login</span>
+            <span class="endpoint-desc">Login and receive JWT token</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Request Body</div>
+            <div class="code-block">{
+  <span class="key">"email"</span>: <span class="string">"ayush@example.com"</span>,
+  <span class="key">"password"</span>: <span class="string">"yourpassword"</span>
+}</div>
+            <div class="code-label">Response (200)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"token"</span>: <span class="string">"eyJhbGci..."</span>,
+  <span class="key">"message"</span>: <span class="string">"Login successful"</span>
+}</div>
+        </div>
+    </div>
+
+    <!-- GROUPS -->
+    <div class="section-title">Groups</div>
+
+    <!-- Get Groups -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/groups</span>
+            <span class="endpoint-desc">Get all groups for logged-in user</span>
+            <span class="auth-badge">🔒 Auth Required</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Headers</div>
+            <div class="code-block">Authorization: Bearer &lt;your_token&gt;</div>
+            <div class="code-label">Response (200)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"groups"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="number">1</span>,
+      <span class="key">"name"</span>: <span class="string">"Goa Trip"</span>,
+      <span class="key">"members"</span>: <span class="string">"Raj, Priya, Arun"</span>,
+      <span class="key">"created_at"</span>: <span class="string">"2026-08-29 11:00:00"</span>
+    }
+  ]
+}</div>
+        </div>
+    </div>
+
+    <!-- Create Group -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/groups</span>
+            <span class="endpoint-desc">Create a new group</span>
+            <span class="auth-badge">🔒 Auth Required</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Request Body</div>
+            <div class="code-block">{
+  <span class="key">"name"</span>: <span class="string">"Goa Trip"</span>,
+  <span class="key">"members"</span>: <span class="string">"Raj, Priya, Arun"</span>
+}</div>
+            <div class="code-label">Response (201)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"message"</span>: <span class="string">"Group created successfully"</span>,
+  <span class="key">"group"</span>: {
+    <span class="key">"id"</span>: <span class="number">1</span>,
+    <span class="key">"name"</span>: <span class="string">"Goa Trip"</span>,
+    <span class="key">"members"</span>: <span class="string">"Raj, Priya, Arun"</span>
+  }
+}</div>
+        </div>
+    </div>
+
+    <!-- Get Group -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/groups/&lt;id&gt;</span>
+            <span class="endpoint-desc">Get group details with expenses and settlements</span>
+            <span class="auth-badge">🔒 Auth Required</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Response (200)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"group"</span>: { ... },
+  <span class="key">"expenses"</span>: [ ... ],
+  <span class="key">"settlements"</span>: [ ... ],
+  <span class="key">"summary"</span>: {
+    <span class="key">"total_amount"</span>: <span class="number">3600.0</span>,
+    <span class="key">"total_expenses"</span>: <span class="number">2</span>,
+    <span class="key">"category_totals"</span>: { <span class="key">"Food"</span>: <span class="number">600</span>, <span class="key">"Accommodation"</span>: <span class="number">3000</span> }
+  }
+}</div>
+        </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="section-title">Expenses</div>
+
+    <!-- Add Expense -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/groups/&lt;id&gt;/expenses</span>
+            <span class="endpoint-desc">Add expense — AI auto-categorizes</span>
+            <span class="auth-badge">🔒 Auth Required</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Request Body</div>
+            <div class="code-block">{
+  <span class="key">"description"</span>: <span class="string">"Hotel booking"</span>,
+  <span class="key">"amount"</span>: <span class="number">3000</span>,
+  <span class="key">"paid_by"</span>: <span class="string">"Raj"</span>
+}</div>
+            <div class="code-label">Response (201)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"expense"</span>: {
+    <span class="key">"id"</span>: <span class="number">1</span>,
+    <span class="key">"description"</span>: <span class="string">"Hotel booking"</span>,
+    <span class="key">"amount"</span>: <span class="number">3000.0</span>,
+    <span class="key">"paid_by"</span>: <span class="string">"Raj"</span>,
+    <span class="key">"category"</span>: <span class="string">"Accommodation"</span>
+  }
+}</div>
+        </div>
+    </div>
+
+    <!-- Edit Expense -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method put">PUT</span>
+            <span class="endpoint-path">/api/expenses/&lt;id&gt;</span>
+            <span class="endpoint-desc">Edit an expense</span>
+            <span class="auth-badge">🔒 Auth Required</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Request Body (all fields optional)</div>
+            <div class="code-block">{
+  <span class="key">"description"</span>: <span class="string">"Updated description"</span>,
+  <span class="key">"amount"</span>: <span class="number">2500</span>,
+  <span class="key">"paid_by"</span>: <span class="string">"Priya"</span>
+}</div>
+        </div>
+    </div>
+
+    <!-- Delete Expense -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method delete">DELETE</span>
+            <span class="endpoint-path">/api/expenses/&lt;id&gt;</span>
+            <span class="endpoint-desc">Delete an expense</span>
+            <span class="auth-badge">🔒 Auth Required</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Response (200)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"message"</span>: <span class="string">"Expense deleted successfully"</span>
+}</div>
+        </div>
+    </div>
+
+    <!-- INSIGHTS & SETTLEMENTS -->
+    <div class="section-title">Insights & Settlements</div>
+
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/groups/&lt;id&gt;/insights</span>
+            <span class="endpoint-desc">Get AI-generated spending insights</span>
+            <span class="auth-badge">🔒 Auth Required</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Response (200)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"insight"</span>: <span class="string">"Your group spent Rs.3600 on this trip..."</span>
+}</div>
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/groups/&lt;id&gt;/settlements</span>
+            <span class="endpoint-desc">Get settlement breakdown</span>
+            <span class="auth-badge">🔒 Auth Required</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="code-label">Response (200)</div>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="boolean">true</span>,
+  <span class="key">"settlements"</span>: [
+    { <span class="key">"from"</span>: <span class="string">"Priya"</span>, <span class="key">"to"</span>: <span class="string">"Raj"</span>, <span class="key">"amount"</span>: <span class="number">600.0</span> }
+  ],
+  <span class="key">"summary"</span>: {
+    <span class="key">"total_amount"</span>: <span class="number">3600.0</span>,
+    <span class="key">"per_person_share"</span>: <span class="number">1200.0</span>
+  }
+}</div>
+        </div>
+    </div>
+
+    <div style="text-align:center; margin-top:48px; color:#4a5568; font-size:0.85rem">
+        SmartSplit AI — Built with Python, Flask, Google Gemini AI
+        <br>
+        <a href="/" style="color:#1A7A8A; text-decoration:none">← Back to App</a>
+    </div>
+</div>
+
+<script>
+function toggle(header) {
+    const body = header.nextElementSibling;
+    const icon = header.querySelector('.toggle-icon');
+    body.classList.toggle('open');
+    icon.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
