@@ -5,10 +5,16 @@ from database import init_db, get_connection
 from ai_helper import categorize_expense, get_spending_insights, calculate_settlements, analyze_receipt
 from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
 from pdf_generator import generate_settlement_pdf
+from flask_jwt_extended import JWTManager
+from api import api as api_blueprint
 import os
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'smartsplit-secret-key-2025')
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'smartsplit-jwt-secret-2025')
+
+jwt = JWTManager(app)
+app.register_blueprint(api_blueprint)
 
 # Call init_db() directly when the application starts
 init_db()
